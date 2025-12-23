@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { Loader2 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Header } from "@/components/layout/Header";
@@ -20,6 +20,9 @@ export default function Home() {
   >(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Track the last conversation we loaded messages for
+  const lastLoadedConversationRef = useRef<string | null>(null);
 
   const isMobile = useIsMobile();
 
@@ -124,21 +127,27 @@ export default function Home() {
   );
 
   // Load database messages into hook's state when conversation changes
-  // Don't reload during streaming to avoid overwriting streaming messages
   useEffect(() => {
-    if (!isStreaming) {
-      if (activeConversationId && dbMessages) {
+    const conversationChanged = lastLoadedConversationRef.current !== activeConversationId;
+
+    if (conversationChanged) {
+      lastLoadedConversationRef.current = activeConversationId;
+
+      if (!activeConversationId) {
+        // Switched to null (new chat) - clear messages
+        setMessages([]);
+      } else if (dbMessages && dbMessages.length > 0) {
+        // Switched to existing conversation with messages - load from DB
         setMessages(dbMessages.map(m => ({
           id: m.id,
           role: m.role,
           parts: m.parts,
           createdAt: m.createdAt instanceof Date ? m.createdAt : new Date(m.createdAt),
         })));
-      } else {
-        setMessages([]);
       }
+      // else: new conversation with no messages yet - don't clear, let streaming happen
     }
-  }, [activeConversationId, dbMessages, setMessages, isStreaming]);
+  }, [activeConversationId, dbMessages, setMessages]);
 
   const handleSendMessage = useCallback(
     async (content: string) => {
