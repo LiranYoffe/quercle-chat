@@ -37,7 +37,7 @@ A modern, AI-powered chat interface built with Next.js and the Quercle AI SDK. C
 
 ```bash
 # Clone the repository
-git clone https://github.com/quercledev/quercle-chat.git
+git clone https://github.com/LiranYoffe/quercle-chat.git
 cd quercle-chat
 
 # Install dependencies
@@ -100,7 +100,7 @@ quercle-chat/
 
 ### Deploy to Vercel (Recommended)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/quercledev/quercle-chat)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/LiranYoffe/quercle-chat)
 
 The app is configured to use Bun on Vercel via `vercel.json`.
 
