@@ -99,6 +99,7 @@ export function SettingsSheet({
             <ModelSelect
               value={localSettings.model}
               onChange={(m) => setLocalSettings((s) => ({ ...s, model: m }))}
+              apiKey={localSettings.openRouterApiKey}
             />
             <p className="text-xs text-zinc-500">
               Select a suggested model or enter any OpenRouter model ID.

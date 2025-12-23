@@ -2,6 +2,8 @@
 
 A modern, AI-powered chat interface built with Next.js and the Quercle AI SDK. Chat with AI models from OpenRouter with a beautiful, responsive UI and persistent conversation history.
 
+**Live Demo:** [https://chat.quercle.dev](https://chat.quercle.dev)
+
 ## Features
 
 - **Multi-Provider AI Support** - Connect to OpenRouter and Quercle AI services

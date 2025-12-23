@@ -10,7 +10,7 @@ interface Settings {
 }
 
 const STORAGE_KEY = "quercle-chat-settings";
-const DEFAULT_MODEL = "meta-llama/llama-3.1-8b-instruct"; // Good balance of speed and quality
+const DEFAULT_MODEL = "nvidia/nemotron-3-nano-30b-a3b:free"; // Free model with tool support
 
 const defaultSettings: Settings = {
   openRouterApiKey: "",

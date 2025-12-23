@@ -36,21 +36,16 @@ export function ProviderSelect({ value, onChange, model, apiKey }: ProviderSelec
         console.log("[PROVIDER SELECT] Current provider:", value);
         setProviders(providersData);
 
-        // Auto-select first tool-supporting provider if current isn't valid
-        if (providersData.length > 0) {
+        // Keep Auto mode (empty string) as valid, only auto-select if current provider is invalid
+        if (providersData.length > 0 && value !== "") {
           const currentValid = providersData.some((p) => p.id === value);
           console.log("[PROVIDER SELECT] Is current provider valid?", currentValid);
 
           if (!currentValid) {
-            const toolProvider = providersData.find((p) => p.supportsTools);
-            const newProvider = toolProvider?.id || providersData[0].id;
-            console.log("[PROVIDER SELECT] Auto-selecting provider:", newProvider);
-            onChange(newProvider);
+            // Reset to Auto mode if current provider isn't available
+            console.log("[PROVIDER SELECT] Current provider invalid, resetting to Auto mode");
+            onChange("");
           }
-        } else {
-          // No providers available - use Auto mode (empty string)
-          console.log("[PROVIDER SELECT] No providers available, setting to Auto mode");
-          onChange("");
         }
       } catch (err) {
         console.error("Failed to fetch providers:", err);
@@ -102,7 +97,7 @@ export function ProviderSelect({ value, onChange, model, apiKey }: ProviderSelec
         <div className="flex items-center gap-2">
           {isLoading ? (
             <Loader2 className="h-4 w-4 animate-spin text-zinc-400" />
-          ) : selectedProvider?.supportsTools ? (
+          ) : selectedProvider ? (
             <Wrench className="h-4 w-4 text-green-500" />
           ) : null}
           <span>{isLoading ? "Loading providers..." : displayName}</span>
@@ -157,15 +152,7 @@ export function ProviderSelect({ value, onChange, model, apiKey }: ProviderSelec
                 )}
               >
                 <div className="flex flex-col items-start">
-                  <div className="flex items-center gap-2">
-                    <span className="text-zinc-100">{provider.name}</span>
-                    {provider.supportsTools && (
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-xs bg-green-500/10 text-green-500 rounded">
-                        <Wrench className="h-3 w-3" />
-                        Tools
-                      </span>
-                    )}
-                  </div>
+                  <span className="text-zinc-100">{provider.name}</span>
                   {provider.contextLength && (
                     <span className="text-xs text-zinc-500">
                       {Math.round(provider.contextLength / 1000)}k context

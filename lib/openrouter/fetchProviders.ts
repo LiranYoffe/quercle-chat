@@ -2,6 +2,7 @@ export interface Provider {
   id: string;
   name: string;
   supportsTools: boolean;
+  supportsSystemPrompt: boolean;
   contextLength?: number;
   pricing?: {
     prompt: string;
@@ -63,29 +64,34 @@ export async function fetchProviders(
 
     console.log("[FETCH PROVIDERS] Raw API response:", JSON.stringify(data, null, 2));
 
-    // Transform to a simpler format with tool support info
-    const providers = data.data.endpoints.map((endpoint) => {
+    // Transform to a simpler format with tool and system_prompt support info
+    const allProviders = data.data.endpoints.map((endpoint) => {
       // Construct provider ID from provider_name and tag (e.g., "DeepInfra/bf16")
       const providerId = endpoint.tag
         ? `${endpoint.provider_name}/${endpoint.tag}`
         : endpoint.provider_name;
 
+      const supportsTools =
+        endpoint.supported_parameters?.includes("tools") ?? false;
+      const supportsSystemPrompt =
+        endpoint.supported_parameters?.includes("system_prompt") ?? false;
+
       return {
         id: providerId,
         name: providerId, // Show full variant name like "DeepInfra/bf16"
-        supportsTools: endpoint.supported_parameters?.includes("tools") ?? false,
+        supportsTools,
+        supportsSystemPrompt,
         contextLength: endpoint.context_length,
         pricing: endpoint.pricing,
       };
     });
 
-    // Sort: tools-supporting first, then by name
-    providers.sort((a, b) => {
-      if (a.supportsTools !== b.supportsTools) {
-        return a.supportsTools ? -1 : 1;
-      }
-      return a.name.localeCompare(b.name);
-    });
+    // Filter to only include providers that support tools
+    // Note: system_prompt is implicitly supported by chat models - OpenRouter doesn't list it in supported_parameters
+    const providers = allProviders.filter((p) => p.supportsTools);
+
+    // Sort by name
+    providers.sort((a, b) => a.name.localeCompare(b.name));
 
     return providers;
   } catch (error) {
