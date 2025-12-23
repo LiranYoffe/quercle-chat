@@ -8,7 +8,27 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Quercle Chat",
-  description: "AI chat with web search and fetch capabilities",
+  description: "Model-agnostic AI chat with web capabilities. Use any OpenRouter model with web search and fetch tools.",
+  keywords: ["Quercle", "AI chat", "OpenRouter", "model-agnostic", "web search", "web fetch", "chatbot", "client-side"],
+  authors: [{ name: "Quercle" }],
+  metadataBase: new URL("https://chat.quercle.dev"),
+  openGraph: {
+    title: "Quercle Chat",
+    description: "Model-agnostic AI chat with web capabilities. Use any OpenRouter model with web search and fetch tools.",
+    url: "https://chat.quercle.dev",
+    siteName: "Quercle Chat",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Quercle Chat",
+    description: "Model-agnostic AI chat with web capabilities. Use any OpenRouter model with web search and fetch tools.",
+  },
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({
