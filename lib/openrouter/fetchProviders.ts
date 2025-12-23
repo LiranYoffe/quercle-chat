@@ -15,8 +15,9 @@ export async function fetchProviders(
   apiKey?: string
 ): Promise<Provider[]> {
   try {
-    // Parse model ID (e.g., "meta-llama/llama-3.1-8b-instruct" -> author="meta-llama", slug="llama-3.1-8b-instruct")
-    const [author, ...slugParts] = model.replace(":free", "").split("/");
+    // Parse model ID - KEEP the :free suffix as it's a different model!
+    // e.g., "meta-llama/llama-3.3-70b-instruct:free" -> author="meta-llama", slug="llama-3.3-70b-instruct:free"
+    const [author, ...slugParts] = model.split("/");
     const slug = slugParts.join("/");
 
     console.log("[FETCH PROVIDERS] Parsing model:", model);
@@ -64,11 +65,13 @@ export async function fetchProviders(
 
     console.log("[FETCH PROVIDERS] Raw API response:", JSON.stringify(data, null, 2));
 
-    // Transform to a simpler format with tool and system_prompt support info
+    // Transform each endpoint to a provider entry
+    // The variant tag is important - it specifies the exact endpoint variant
     const allProviders = data.data.endpoints.map((endpoint) => {
-      // Construct provider ID from provider_name and tag (e.g., "DeepInfra/bf16")
+      // Construct provider ID including tag (e.g., "DeepInfra:bf16")
+      // Use colon as separator since OpenRouter uses this format
       const providerId = endpoint.tag
-        ? `${endpoint.provider_name}/${endpoint.tag}`
+        ? `${endpoint.provider_name}:${endpoint.tag}`
         : endpoint.provider_name;
 
       const supportsTools =
@@ -76,9 +79,14 @@ export async function fetchProviders(
       const supportsSystemPrompt =
         endpoint.supported_parameters?.includes("system_prompt") ?? false;
 
+      // Display name shows provider and tag if present
+      const displayName = endpoint.tag
+        ? `${endpoint.provider_name} (${endpoint.tag})`
+        : endpoint.provider_name;
+
       return {
         id: providerId,
-        name: providerId, // Show full variant name like "DeepInfra/bf16"
+        name: displayName,
         supportsTools,
         supportsSystemPrompt,
         contextLength: endpoint.context_length,
@@ -87,11 +95,12 @@ export async function fetchProviders(
     });
 
     // Filter to only include providers that support tools
-    // Note: system_prompt is implicitly supported by chat models - OpenRouter doesn't list it in supported_parameters
     const providers = allProviders.filter((p) => p.supportsTools);
 
     // Sort by name
     providers.sort((a, b) => a.name.localeCompare(b.name));
+
+    console.log("[FETCH PROVIDERS] Final providers:", providers.map(p => p.id));
 
     return providers;
   } catch (error) {

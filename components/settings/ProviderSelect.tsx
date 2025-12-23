@@ -19,45 +19,71 @@ export function ProviderSelect({ value, onChange, model, apiKey }: ProviderSelec
   const [error, setError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Track which model the current providers are for
+  const [providersForModel, setProvidersForModel] = useState<string>("");
+  const previousModelRef = useRef<string>("");
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange; // Keep ref updated
+
   // Fetch providers when model changes
   useEffect(() => {
+    const previousModel = previousModelRef.current;
+    const modelChanged = previousModel !== "" && previousModel !== model;
+    previousModelRef.current = model;
+
+    // Clear providers and reset to Auto when model changes
+    if (modelChanged) {
+      console.log("[PROVIDER SELECT] Model changed from", previousModel, "to", model);
+      setProviders([]);
+      setProvidersForModel("");
+      onChangeRef.current(""); // Reset to Auto
+    }
+
     if (!model) {
       setProviders([]);
       return;
     }
 
+    let cancelled = false;
+    const currentModel = model;
+
     const fetchProvidersData = async () => {
       setIsLoading(true);
       setError(null);
 
+      console.log("[PROVIDER SELECT] Fetching providers for model:", currentModel);
+
       try {
-        const providersData = await fetchProviders(model, apiKey);
-        console.log("[PROVIDER SELECT] Fetched", providersData.length, "providers for model:", model);
-        console.log("[PROVIDER SELECT] Current provider:", value);
-        setProviders(providersData);
+        const providersData = await fetchProviders(currentModel, apiKey);
 
-        // Keep Auto mode (empty string) as valid, only auto-select if current provider is invalid
-        if (providersData.length > 0 && value !== "") {
-          const currentValid = providersData.some((p) => p.id === value);
-          console.log("[PROVIDER SELECT] Is current provider valid?", currentValid);
-
-          if (!currentValid) {
-            // Reset to Auto mode if current provider isn't available
-            console.log("[PROVIDER SELECT] Current provider invalid, resetting to Auto mode");
-            onChange("");
-          }
+        if (cancelled) {
+          console.log("[PROVIDER SELECT] Fetch cancelled - model changed during fetch");
+          return;
         }
+
+        console.log("[PROVIDER SELECT] Got", providersData.length, "providers for:", currentModel);
+        console.log("[PROVIDER SELECT] Providers:", providersData.map(p => p.id));
+
+        setProviders(providersData);
+        setProvidersForModel(currentModel);
       } catch (err) {
+        if (cancelled) return;
         console.error("Failed to fetch providers:", err);
         setError(err instanceof Error ? err.message : "Failed to fetch providers");
-        setProviders([]); // Clear providers on error
+        setProviders([]);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchProvidersData();
-  }, [model, apiKey]); // Don't include value/onChange to avoid loops
+
+    return () => {
+      cancelled = true;
+    };
+  }, [model, apiKey]); // Don't include onChange to avoid loops
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -112,6 +138,13 @@ export function ProviderSelect({ value, onChange, model, apiKey }: ProviderSelec
 
       {error && (
         <p className="text-xs text-amber-500 mt-1">{error}</p>
+      )}
+
+      {/* Debug: show which model providers are for */}
+      {providersForModel && providersForModel !== model && (
+        <p className="text-xs text-red-500 mt-1">
+          ⚠️ Providers are for: {providersForModel} (not current model)
+        </p>
       )}
 
       {isOpen && !isLoading && providers.length > 0 && (
