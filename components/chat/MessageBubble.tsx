@@ -46,7 +46,7 @@ export function MessageBubble({
     >
       <Avatar className="h-8 w-8 shrink-0">
         {!isUser && (
-          <AvatarImage src="https://quercle.dev/icon" alt="Quercle" />
+          <AvatarImage src="/icon.png" alt="Quercle" />
         )}
         <AvatarFallback
           className={cn(
