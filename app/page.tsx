@@ -21,8 +21,8 @@ export default function Home() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Track the last conversation we loaded messages for
-  const lastLoadedConversationRef = useRef<string | null>(null);
+  // Ref for current conversation ID - updated synchronously for use in callbacks
+  const activeConversationIdRef = useRef<string | null>(null);
 
   const isMobile = useIsMobile();
 
@@ -78,6 +78,9 @@ export default function Home() {
     }
   }, [activeConversationId]);
 
+  // Keep ref in sync with state
+  activeConversationIdRef.current = activeConversationId;
+
   // Initialize Streaming Agent chat hook (CLIENT-SIDE!)
   const { messages, isStreaming, error, sendMessage: sendChatMessage, setMessages } = useStreamingAgentChat({
     conversationId: activeConversationId,
@@ -86,9 +89,10 @@ export default function Home() {
     model: settings.model,
     provider: settings.provider,
     onMessageSaved: async (message: UIMessage) => {
-      // Save message to database
-      if (activeConversationId) {
-        await addMessage(message, activeConversationId);
+      // Use ref to get current conversation ID (avoids stale closure)
+      const convId = activeConversationIdRef.current;
+      if (convId) {
+        await addMessage(message, convId);
       }
     },
   });
@@ -126,18 +130,21 @@ export default function Home() {
     [isMobile]
   );
 
-  // Load database messages into hook's state when conversation changes
-  useEffect(() => {
-    const conversationChanged = lastLoadedConversationRef.current !== activeConversationId;
+  // Track last loaded conversation to avoid reloading during streaming
+  const lastLoadedConvRef = useRef<string | null>(null);
 
-    if (conversationChanged) {
-      lastLoadedConversationRef.current = activeConversationId;
+  // Load database messages when switching to a different conversation
+  useEffect(() => {
+    const isSameConversation = lastLoadedConvRef.current === activeConversationId;
+
+    if (!isSameConversation) {
+      lastLoadedConvRef.current = activeConversationId;
 
       if (!activeConversationId) {
-        // Switched to null (new chat) - clear messages
+        // New chat - clear messages
         setMessages([]);
       } else if (dbMessages && dbMessages.length > 0) {
-        // Switched to existing conversation with messages - load from DB
+        // Existing conversation - load from DB
         setMessages(dbMessages.map(m => ({
           id: m.id,
           role: m.role,
@@ -145,7 +152,7 @@ export default function Home() {
           createdAt: m.createdAt instanceof Date ? m.createdAt : new Date(m.createdAt),
         })));
       }
-      // else: new conversation with no messages yet - don't clear, let streaming happen
+      // New conversation with no messages - don't clear, let streaming add them
     }
   }, [activeConversationId, dbMessages, setMessages]);
 
@@ -157,6 +164,9 @@ export default function Home() {
         // Create with initial title from first message
         const initialTitle = content.slice(0, 50) + (content.length > 50 ? "..." : "");
         convId = await createConversation(initialTitle);
+        // Update ref BEFORE state so onMessageSaved has correct ID
+        activeConversationIdRef.current = convId;
+        lastLoadedConvRef.current = convId;
         setActiveConversationId(convId);
       } else if (dbMessages.length === 0) {
         // Update title for existing empty conversation (edge case)
