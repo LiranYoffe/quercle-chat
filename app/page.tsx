@@ -36,13 +36,33 @@ export default function Home() {
   useEffect(() => {
     const savedConversationId = localStorage.getItem("activeConversationId");
     if (savedConversationId) {
-      setActiveConversationId(savedConversationId);
+      // Verify the saved conversation still exists
+      const conversationExists = conversations.some(c => c.id === savedConversationId);
+      if (conversationExists) {
+        setActiveConversationId(savedConversationId);
+      } else {
+        // Saved conversation was deleted, clear localStorage
+        localStorage.removeItem("activeConversationId");
+        // Start in new chat state if no conversations exist
+        if (conversations.length === 0) {
+          setActiveConversationId(null);
+        } else {
+          // Auto-select most recent conversation
+          const mostRecent = [...conversations].sort(
+            (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
+          )[0];
+          setActiveConversationId(mostRecent.id);
+        }
+      }
     } else if (conversations.length > 0) {
       // Auto-select most recent conversation if no saved ID
       const mostRecent = [...conversations].sort(
         (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
       )[0];
       setActiveConversationId(mostRecent.id);
+    } else {
+      // No saved ID and no conversations - start in "new chat" state
+      setActiveConversationId(null);
     }
   }, [conversations]);
 
@@ -71,14 +91,25 @@ export default function Home() {
   });
 
   const handleNewChat = useCallback(async () => {
-    const id = await createConversation();
-    setActiveConversationId(id);
-    // Messages will be cleared by the useEffect when activeConversationId changes
-    // Close sidebar on mobile after creating new chat
+    // Prevent duplicate new chat creation
+    // Already in "new chat" state if no conversation AND no messages
+    const isAlreadyNewChat = activeConversationId === null && messages.length === 0;
+
+    if (isAlreadyNewChat) {
+      return; // Do nothing if already in new chat state
+    }
+
+    // Set to null to indicate "new chat" state (no conversation created yet)
+    setActiveConversationId(null);
+
+    // Explicitly clear messages
+    setMessages([]);
+
+    // Close sidebar on mobile
     if (isMobile) {
       setSidebarOpen(false);
     }
-  }, [createConversation, isMobile]);
+  }, [activeConversationId, messages.length, setMessages, isMobile]);
 
   const handleSelectConversation = useCallback(
     (id: string) => {
@@ -111,15 +142,15 @@ export default function Home() {
 
   const handleSendMessage = useCallback(
     async (content: string) => {
-      // Create conversation if none exists
+      // Create conversation if none exists (lazy creation)
       let convId = activeConversationId;
       if (!convId) {
-        convId = await createConversation(content.slice(0, 50));
+        // Create with initial title from first message
+        const initialTitle = content.slice(0, 50) + (content.length > 50 ? "..." : "");
+        convId = await createConversation(initialTitle);
         setActiveConversationId(convId);
-      }
-
-      // Generate title from first message
-      if (dbMessages.length === 0) {
+      } else if (dbMessages.length === 0) {
+        // Update title for existing empty conversation (edge case)
         await updateConversation(convId, {
           title: content.slice(0, 50) + (content.length > 50 ? "..." : ""),
         });
