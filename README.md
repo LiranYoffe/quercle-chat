@@ -1,36 +1,126 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Quercle Chat
+
+A modern, AI-powered chat interface built with Next.js and the Quercle AI SDK. Chat with AI models from OpenRouter with a beautiful, responsive UI and persistent conversation history.
+
+## Features
+
+- **Multi-Provider AI Support** - Connect to OpenRouter and Quercle AI services
+- **Persistent Conversations** - All chats saved locally using IndexedDB
+- **Real-time Streaming** - Watch responses stream in real-time
+- **Tool Calling Visualization** - See AI agent tool usage with detailed cards
+- **Thinking Process Display** - Collapsible reasoning blocks show AI's thought process
+- **Responsive Design** - Works seamlessly on desktop and mobile
+- **Dark Mode UI** - Beautiful dark theme with Tailwind CSS
+- **Conversation Management** - Create, rename, and delete conversations
+- **Model Selection** - Choose from various AI models
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Runtime:** Bun 1.x
+- **Styling:** Tailwind CSS 4
+- **UI Components:** Radix UI + shadcn/ui
+- **Icons:** Lucide React
+- **Database:** IndexedDB (via Dexie.js)
+- **AI SDK:** [@quercle/ai-sdk](https://www.npmjs.com/package/@quercle/ai-sdk), [@openrouter/ai-sdk-provider](https://www.npmjs.com/package/@openrouter/ai-sdk-provider)
+- **State Management:** React Hooks
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- [Bun](https://bun.sh/) 1.x or later
+- OpenRouter API key (optional)
+- Quercle API key (optional)
+
+### Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+# Clone the repository
+git clone https://github.com/quercledev/quercle-chat.git
+cd quercle-chat
+
+# Install dependencies
+bun install
+
+# Run the development server
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Configuration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Click the settings icon in the header
+2. Choose your AI provider (OpenRouter or Quercle)
+3. Enter your API key
+4. Select a model
+5. Start chatting!
 
-## Learn More
+All settings are stored locally in your browser.
 
-To learn more about Next.js, take a look at the following resources:
+## Development
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# Run development server
+bun dev
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Build for production
+bun run build
 
-## Deploy on Vercel
+# Start production server
+bun start
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Run linter
+bun run lint
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Project Structure
+
+```
+quercle-chat/
+├── app/                    # Next.js app directory
+│   ├── page.tsx           # Main chat page
+│   ├── layout.tsx         # Root layout
+│   └── globals.css        # Global styles
+├── components/            # React components
+│   ├── chat/             # Chat-related components
+│   ├── layout/           # Layout components
+│   ├── settings/         # Settings components
+│   ├── sidebar/          # Sidebar components
+│   └── ui/               # Reusable UI components
+├── lib/                   # Utilities and hooks
+│   ├── hooks/            # Custom React hooks
+│   ├── types/            # TypeScript types
+│   └── db.ts             # IndexedDB configuration
+└── public/               # Static assets
+```
+
+## Deployment
+
+### Deploy to Vercel (Recommended)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/quercledev/quercle-chat)
+
+The app is configured to use Bun on Vercel via `vercel.json`.
+
+### Manual Deployment
+
+1. Build the app: `bun run build`
+2. Deploy the `.next` folder to your hosting provider
+3. Ensure Bun 1.x is available in the environment
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+MIT
+
+## Links
+
+- [Quercle AI SDK](https://www.npmjs.com/package/@quercle/ai-sdk)
+- [OpenRouter](https://openrouter.ai/)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Bun Documentation](https://bun.sh/docs)
