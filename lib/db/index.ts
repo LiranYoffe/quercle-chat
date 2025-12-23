@@ -65,9 +65,9 @@ db.version(2)
         if (message.toolCalls && Array.isArray(message.toolCalls)) {
           for (const toolCall of message.toolCalls) {
             const toolType =
-              toolCall.name === "quercleSearch"
-                ? ("tool-quercleSearch" as const)
-                : ("tool-quercleFetch" as const);
+              toolCall.name === "search"
+                ? ("tool-search" as const)
+                : ("tool-fetch" as const);
 
             parts.push({
               type: toolType,

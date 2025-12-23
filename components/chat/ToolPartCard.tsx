@@ -26,7 +26,7 @@ export function ToolPartCard({ part }: ToolPartCardProps) {
   };
 
   const getToolIcon = () => {
-    return part.toolName === "quercleSearch" ? (
+    return part.toolName === "search" ? (
       <Search className="h-4 w-4" />
     ) : (
       <Globe className="h-4 w-4" />
@@ -34,15 +34,15 @@ export function ToolPartCard({ part }: ToolPartCardProps) {
   };
 
   const getToolLabel = () => {
-    const toolName = part.toolName === "quercleSearch" ? "Search" : "Fetch";
+    const toolName = part.toolName === "search" ? "Search" : "Fetch";
 
     switch (part.state) {
       case "input-streaming":
         return `Preparing ${toolName}...`;
       case "input-available":
-        if (part.toolName === "quercleSearch" && part.input?.query) {
+        if (part.toolName === "search" && part.input?.query) {
           return `Searching: ${part.input.query}`;
-        } else if (part.toolName === "quercleFetch" && part.input?.url) {
+        } else if (part.toolName === "fetch" && part.input?.url) {
           try {
             const hostname = new URL(part.input.url as string).hostname;
             return `Fetching: ${hostname}`;
@@ -52,9 +52,9 @@ export function ToolPartCard({ part }: ToolPartCardProps) {
         }
         return `Calling ${toolName}...`;
       case "output-available":
-        if (part.toolName === "quercleSearch" && part.input?.query) {
+        if (part.toolName === "search" && part.input?.query) {
           return `Searched: ${part.input.query}`;
-        } else if (part.toolName === "quercleFetch" && part.input?.url) {
+        } else if (part.toolName === "fetch" && part.input?.url) {
           try {
             const hostname = new URL(part.input.url as string).hostname;
             return `Fetched: ${hostname}`;

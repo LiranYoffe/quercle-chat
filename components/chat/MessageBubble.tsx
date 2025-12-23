@@ -27,8 +27,8 @@ export function MessageBubble({
     (p) =>
       (p.type === "text" && p.text.trim().length > 0) ||
       (p.type === "reasoning" && p.text.trim().length > 0) ||
-      p.type === "tool-quercleSearch" ||
-      p.type === "tool-quercleFetch" ||
+      p.type === "tool-search" ||
+      p.type === "tool-fetch" ||
       p.type === "step-start"
   );
 
@@ -128,8 +128,8 @@ export function MessageBubble({
                 </details>
               );
 
-            case "tool-quercleSearch":
-            case "tool-quercleFetch":
+            case "tool-search":
+            case "tool-fetch":
               return <ToolPartCard key={index} part={part} />;
 
             case "step-start":

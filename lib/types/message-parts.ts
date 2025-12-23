@@ -13,9 +13,9 @@ export interface ReasoningPart {
 }
 
 export interface ToolPart {
-  type: "tool-quercleSearch" | "tool-quercleFetch";
+  type: "tool-search" | "tool-fetch";
   toolCallId: string;
-  toolName: "quercleSearch" | "quercleFetch";
+  toolName: "search" | "fetch";
   state:
     | "input-streaming"
     | "input-available"
@@ -44,7 +44,7 @@ export function isTextPart(part: MessagePart): part is TextPart {
 }
 
 export function isToolPart(part: MessagePart): part is ToolPart {
-  return part.type === "tool-quercleSearch" || part.type === "tool-quercleFetch";
+  return part.type === "tool-search" || part.type === "tool-fetch";
 }
 
 export function isStepStartPart(part: MessagePart): part is StepStartPart {

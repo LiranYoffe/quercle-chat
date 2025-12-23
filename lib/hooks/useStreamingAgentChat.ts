@@ -117,14 +117,23 @@ export function useStreamingAgentChat(options: UseStreamingAgentChatOptions) {
           console.log("[AGENT] No provider specified, using default");
         }
 
+        // Generate current date string
+        const currentDate = new Date().toLocaleDateString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+
         // Create ToolLoopAgent
         const agent = new ToolLoopAgent({
           model: openrouterProvider(model, modelConfig),
           tools: {
-            quercleSearch,
-            quercleFetch,
+            search: quercleSearch,
+            fetch: quercleFetch,
           } as any, // Type assertion to avoid TS inference depth issues
           stopWhen: stepCountIs(10), // Allow up to 10 tool execution rounds (works best with GPT-4, Claude, Gemini)
+          instructions: `You are Quercle chat agent. Today's date is ${currentDate}.`,
         });
 
         // Stream response (use messages only, not prompt)
@@ -185,10 +194,10 @@ export function useStreamingAgentChat(options: UseStreamingAgentChatOptions) {
           }
           else if (chunk.type === 'tool-call') {
             const toolCallId = (chunk as any).toolCallId;
-            const toolName = (chunk as any).toolName as "quercleSearch" | "quercleFetch";
-            const toolType = toolName === "quercleSearch"
-              ? ("tool-quercleSearch" as const)
-              : ("tool-quercleFetch" as const);
+            const toolName = (chunk as any).toolName as "search" | "fetch";
+            const toolType = toolName === "search"
+              ? ("tool-search" as const)
+              : ("tool-fetch" as const);
             const input = (chunk as any).input; // AI SDK v6 uses 'input' not 'args'
 
             console.log("[AGENT] Tool call:", toolName, "ID:", toolCallId, "Input:", input);
