@@ -1,8 +1,8 @@
 "use client";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ToolPartCard } from "./ToolPartCard";
-import { Loader2, ChevronDown } from "lucide-react";
+import { Loader2, ChevronDown, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { MessagePart } from "@/lib/types/message-parts";
 
@@ -45,6 +45,9 @@ export function MessageBubble({
       )}
     >
       <Avatar className="h-8 w-8 shrink-0">
+        {!isUser && (
+          <AvatarImage src="https://quercle.dev/icon" alt="Quercle" />
+        )}
         <AvatarFallback
           className={cn(
             "text-sm font-medium",
@@ -53,7 +56,7 @@ export function MessageBubble({
               : "bg-blue-600 text-white"
           )}
         >
-          {isUser ? "U" : "Q"}
+          {isUser ? <User className="h-4 w-4" /> : "Q"}
         </AvatarFallback>
       </Avatar>
 
