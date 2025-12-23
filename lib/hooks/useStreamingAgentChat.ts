@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import { ToolLoopAgent } from "ai";
+import { ToolLoopAgent, stepCountIs } from "ai";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { createQuercleTools } from "@quercle/ai-sdk";
-import type { UIMessage } from "@/lib/types/message-parts";
+import type { UIMessage, MessagePart } from "@/lib/types/message-parts";
 import { nanoid } from "nanoid";
 
 export interface UseStreamingAgentChatOptions {
@@ -123,8 +123,8 @@ export function useStreamingAgentChat(options: UseStreamingAgentChatOptions) {
           tools: {
             quercleSearch,
             quercleFetch,
-          },
-          maxSteps: 10, // Allow up to 10 tool execution rounds (works best with GPT-4, Claude, Gemini)
+          } as any, // Type assertion to avoid TS inference depth issues
+          stopWhen: stepCountIs(10), // Allow up to 10 tool execution rounds (works best with GPT-4, Claude, Gemini)
         });
 
         // Stream response (use messages only, not prompt)
@@ -144,7 +144,7 @@ export function useStreamingAgentChat(options: UseStreamingAgentChatOptions) {
           chunkCount++;
           console.log("[AGENT] Received chunk #" + chunkCount + ", type:", chunk.type);
 
-          const currentParts = [...(currentAssistantMessageRef.current?.parts || [])];
+          const currentParts: MessagePart[] = [...(currentAssistantMessageRef.current?.parts || [])];
 
           if (chunk.type === 'text-delta') {
             const deltaText = (chunk as any).text;

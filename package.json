@@ -9,8 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^3.0.0",
-    "@ai-sdk/react": "^3.0.1",
     "@openrouter/ai-sdk-provider": "^1.5.4",
     "@quercle/ai-sdk": "^0.2.0",
     "@radix-ui/react-avatar": "^1.1.11",
@@ -27,6 +25,7 @@
     "dexie": "^4.2.1",
     "dexie-react-hooks": "^4.2.0",
     "lucide-react": "^0.562.0",
+    "nanoid": "^5.0.9",
     "next": "16.1.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
